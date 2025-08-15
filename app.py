@@ -194,8 +194,19 @@ def sendTextMessageToMe():
 def getNameEmojiMessage():
     lookUpStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     productId = "5ac21a8c040ab15980c9b43f"
-    name = ""
-    message = dict()
+    name = "Miles"
+    emojis_list = list()
+    for i,c in enumerate(name):
+        emojis_list.append({
+            "index":i,
+            "productId":productId,
+            "emojiId": str(lookUpStr.index(c)+1).zfill(3)
+        })
+    message = {
+        "text":"$"*len(name),
+        "emojis": emojis_list,
+        "type":"text"
+    }
     return message
 
 
@@ -215,17 +226,33 @@ def getCallCarMessage(data):
 
 
 def getPlayStickerMessage():
-    message = dict()
+    message = {
+    "type": "sticker",
+    "packageId": "1070",
+    "stickerId": "17842"
+    }
     return message
 
 
 def getTaipei101LocationMessage():
-    message = dict()
+    message = {
+        "type": "location",
+        "title": "台北101",
+        "address": "110台北市信義區信義路五段7號",
+        "latitude": 25.034131512717572, 
+        "longitude": 121.56450670936033
+    }
     return message
 
 
 def getMRTVideoMessage():
-    message = dict()
+    print(F"{end_point}/static/taipei_101_video.mp4")
+    message = {
+        "type": "video",
+        "originalContentUrl": F"{end_point}/static/taipei_101_video.mp4",
+        "previewImageUrl": F"{end_point}/static/taipei_101.jpeg",
+        "trackingId": "track-id"
+    }
     return message
 
 
@@ -246,29 +273,47 @@ def getTaipei101ImageMessage(originalContentUrl=F"{end_point}/static/taipei_101.
 
 
 def getImageMessage(originalContentUrl):
-    message = dict()
+    message = {
+    "type": "image",
+    "originalContentUrl": originalContentUrl,
+    "previewImageUrl": originalContentUrl
+    }
     return message
 
 
 def replyMessage(payload):
-    response = {}
-    return 'OK'
+    url = "https://api.line.me/v2/bot/message/reply"
+    response = requests.post(url,headers=HEADER,json=payload)
+    if response.status_code == 200:
+        return 'OK'
+    else:
+        print(response.text)
+        return 'not OK'
 
 
 def pushMessage(payload):
-    response = {}
-    return 'OK'
+    url = "https://api.line.me/v2/bot/message/push"
+    response = requests.post(url,headers=HEADER,json=payload)
+    if response.status_code == 200:
+        return 'OK'
+    else:
+        print(response.text)
+        return 'not OK'
 
 
 def getTotalSentMessageCount():
-    response = {}
-    return 0
+    url = "https://api.line.me/v2/bot/message/quota/consumption"
+    response = requests.get(url,headers=HEADER)
+    return response.json()['totalUsage']
 
 
 def getTodayCovid19Message():
-    date = ""
-    total_count = 0
-    count = 0
+    url = "https://covid-19.nchc.org.tw/2023_dt_json.php?dt_name=8&ext=全國_全區"
+    response = requests.get(url)
+    data = response.json()[0]
+    date = data['a01']
+    total_count = data['a05']
+    count = data['a04']
     return F"日期：{date}, 人數：{count}, 確診總人數：{total_count}"
 
 @app.route('/line_login', methods=['GET'])
@@ -303,4 +348,4 @@ def line_login():
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(port=5000)
