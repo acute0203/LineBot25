@@ -211,17 +211,84 @@ def getNameEmojiMessage():
 
 
 def getCarouselMessage(data):
-    message = dict()
+    message = {
+        "type": "template",
+        "altText": "this is a image carousel template",
+        "template": {
+            "type": "image_carousel",
+            "columns": [
+            {
+                "imageUrl": F"{end_point}/static/taipei_101.jpeg",
+                "action": {
+                "type": "postback",
+                "label": "白天的101",
+                "data": json.dumps(data)
+                }
+            },
+            {
+                "imageUrl": F"{end_point}/static/taipei_1.jpeg",
+                "action": {
+                "type": "postback",
+                "label": "晚上的101",
+                "data": json.dumps(data)
+                }
+            }
+            ]
+        }
+    }
     return message
 
 
 def getLocationConfirmMessage(title, latitude, longitude):
-    message = dict()
+    data = {"title":title,
+            "latitude":latitude,
+            "longitude":longitude,
+            "action":"get_near"}
+    message = {
+    "type": "template",
+    "altText": "this is a confirm template",
+    "template": {
+        "type": "confirm",
+        "text": F"是否要規劃 {title} 附近景點？",
+        "actions": [
+        {
+            "type": "postback",
+            "label": "是",
+            "data": json.dumps(data)
+        },
+        {
+            "type": "message",
+            "label": "否",
+            "text": "no"
+        }
+        ]
+    }
+    }
     return message
 
 
 def getCallCarMessage(data):
-    message = dict()
+    message = {
+        "type": "template",
+        "altText": "This is a buttons template",
+        "template": {
+            "type": "buttons",
+            "text": "是否進行叫車服務？",
+            "actions": [
+            {
+                "type": "datetimepicker",
+                "label": "預約",
+                "data": json.dumps(data),
+                "mode": "datetime"
+            },
+            {
+                "type": "uri",
+                "label": "官網",
+                "uri": "https://www.uber.com/tw/zh-tw/"
+            }
+            ]
+        }
+    }
     return message
 
 
@@ -348,4 +415,4 @@ def line_login():
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(port=5000)
+    app.run(port=5001)
